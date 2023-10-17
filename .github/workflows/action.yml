@@ -17,8 +17,8 @@ jobs:
         sudo systemctl start mysql
         sudo mysql_secure_installation
       env:
-        MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+        MYSQL_ROOT_PASSWORD1: ${{ secrets.MYSQL_ROOT_PASSWORD }}
 
     - name: Create a test database
       run: |
-        mysql -u root --password=$MYSQL_ROOT_PASSWORD -e 'CREATE DATABASE testdb;'
+        mysql -u root --password=$MYSQL_ROOT_PASSWORD1 -e 'CREATE DATABASE testdb;'
