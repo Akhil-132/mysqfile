@@ -1,4 +1,4 @@
-name: MySQL Workflow
+name: MySQL Setup Workflow
 
 on: [push]
 
@@ -7,23 +7,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Set up MySQL
-      uses: mysql/setup-mysql@v2
-      with:
-        mysql-version: '5.7'
-        root-password: ${{ secrets.MYSQL_ROOT_PASSWORD }}
-
-    - name: Start MySQL Service
-      run: sudo service mysql start
-
-    - name: Check out code
+    - name: Checkout code
       uses: actions/checkout@v2
 
-    # Additional steps to run tests, migrations, or other database-related tasks
+    - name: Set up MySQL
+      run: |
+        sudo apt-get update -y
+        sudo apt-get install -y mysql-server
+        sudo mysql_secure_installation
+      env:
+        MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
 
-    - name: Clean up MySQL
-      run: mysql -u root -p"${{ secrets.MYSQL_ROOT_PASSWORD }}" -e "DROP DATABASE IF EXISTS my_database"
-
-    - name: Finalize
-      run: echo "MySQL workflow completed successfully"
-
+    - name: Create a test database
+      run: |
+        mysql -u root --password=$MYSQL_ROOT_PASSWORD -e 'CREATE DATABASE testdb;'
