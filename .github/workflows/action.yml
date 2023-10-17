@@ -1,24 +1,43 @@
-name: MySQL Setup Workflow
+name: MySQL Database Setup
 
-on: [push]
+on:
+  push:
+    branches:
+      - main
 
 jobs:
-  build:
+  setup-mysql:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
+    - name: Checkout the code
       uses: actions/checkout@v2
 
     - name: Set up MySQL
       run: |
-        sudo apt-get update -y
-        sudo apt-get install -y mysql-server
-        sudo systemctl start mysql
-        sudo mysql_secure_installation
-      env:
-        MYSQL_ROOT_PASSWORD1: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+        sudo apt-get update
+        sudo apt-get install -y mysql-client
 
-    - name: Create a test database
+    - name: Create Database and User
       run: |
-        mysql -u root --password=$MYSQL_ROOT_PASSWORD1 -e 'CREATE DATABASE testdb;'
+        # Set your MySQL server details
+        DB_HOST=127.0.0.1
+        DB_USER=root
+        DB_PASSWORD=qwerty
+
+        # Replace with your desired database and user names
+        DB_NAME=mydatabase
+        DB_USER=myuser
+        DB_USER_PASSWORD=password
+
+        # Create the database
+        mysql -u $DB_USER -p$DB_PASSWORD -e "CREATE DATABASE $DB_NAME;"
+
+        # Create the user and grant privileges
+        mysql -u $DB_USER -p$DB_PASSWORD -e "CREATE USER '$DB_USER'@'localhost' IDENTIFIED BY '$DB_USER_PASSWORD';"
+        mysql -u $DB_USER -p$DB_PASSWORD -e "GRANT ALL PRIVILEGES ON $DB_NAME.* TO '$DB_USER'@'localhost';"
+        mysql -u $DB_USER -p$DB_PASSWORD -e "FLUSH PRIVILEGES;"
+
+    - name: Finish
+      run: |
+        echo "Database and user created successfully."
